@@ -21,7 +21,7 @@ export class Order extends Model<OrderAttributes> implements OrderAttributes {
 
 }
 
-export const OrderItemModel = (sequelize: Sequelize) => {
+export const OrderModel = (sequelize: Sequelize) => {
     Order.init(
         {
             id: {

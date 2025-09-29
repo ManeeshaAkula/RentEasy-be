@@ -5,12 +5,12 @@
   "author": "",
   "license": "ISC",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
     "start": "node dist/src/server.js",
     "dev": "nodemon src/server.ts",
     "build": "tsc",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
     "url": "git+https://github.com/ManeeshaAkula/RentEasy-be.git"
   },
   "keywords": [],

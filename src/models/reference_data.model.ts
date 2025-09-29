@@ -38,7 +38,7 @@ export const ReferenceDataModel = (sequelize: Sequelize) => {
         },
         {
             sequelize,
-            tableName: 'Reference_data',
+            tableName: 'reference_data',
             modelName: 'ReferenceData',
             underscored: true,
             timestamps: true,

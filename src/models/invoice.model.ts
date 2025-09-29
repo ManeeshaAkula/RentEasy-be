@@ -6,7 +6,7 @@ interface InvoiceAttributes {
     invoice_number: string,
     s3_key: string,
     s3_url: string,
-    total: string
+    total: number
 }
 
 export class Invoice extends Model<InvoiceAttributes> implements InvoiceAttributes {
@@ -15,7 +15,7 @@ export class Invoice extends Model<InvoiceAttributes> implements InvoiceAttribut
     public invoice_number!: string;
     public s3_key!: string;
     public s3_url!: string;
-    public total!: string;
+    public total!: number;
 }
 
 export const InvoiceModel = (sequelize: Sequelize) => {
@@ -42,7 +42,7 @@ export const InvoiceModel = (sequelize: Sequelize) => {
                 allowNull: false,
             },
             total: {
-                type: DataTypes.STRING,
+                type: DataTypes.NUMBER,
                 allowNull: false,
             },
         },

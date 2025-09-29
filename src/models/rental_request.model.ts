@@ -1,6 +1,6 @@
 import { DataTypes, Model, Sequelize, Optional } from 'sequelize';
 
-interface OrderItemAttributes {
+interface RentalRequestAttributes {
     id: string,
     product_id: string,
     buyer_id: string,
@@ -10,7 +10,7 @@ interface OrderItemAttributes {
     status_id: string
 }
 
-export class OrderItem extends Model<OrderItemAttributes> implements OrderItemAttributes {
+export class RentalRequest extends Model<RentalRequestAttributes> implements RentalRequestAttributes {
     public id!: string;
     public product_id!: string;
     public buyer_id!: string;
@@ -20,8 +20,8 @@ export class OrderItem extends Model<OrderItemAttributes> implements OrderItemAt
     public status_id!: string;
 }
 
-export const OrderItemModel = (sequelize: Sequelize) => {
-    OrderItem.init(
+export const RentalRequestModel = (sequelize: Sequelize) => {
+    RentalRequest.init(
         {
             id: {
                 type: DataTypes.STRING,
@@ -54,12 +54,12 @@ export const OrderItemModel = (sequelize: Sequelize) => {
         },
         {
             sequelize,
-            tableName: 'order_items',
-            modelName: 'OrderItems',
+            tableName: 'rental_requests',
+            modelName: 'RentalRequests',
             underscored: true,
             timestamps: true,
         }
     );
 
-    return OrderItem;
+    return RentalRequest;
 };
