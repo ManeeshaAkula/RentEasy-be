@@ -28,7 +28,8 @@ export const CartItemModel = (sequelize: Sequelize) => {
     CartItem.init(
         {
             id: {
-                type: DataTypes.STRING,
+                type: DataTypes.UUID,
+                defaultValue: DataTypes.UUIDV4,
                 primaryKey: true,
             },
             cart_id: {
@@ -38,25 +39,29 @@ export const CartItemModel = (sequelize: Sequelize) => {
             product_id: {
                 type: DataTypes.STRING,
                 allowNull: false,
+                 references: {
+                    model: 'products',
+                    key: 'id'
+                }
             },
             start_date: {
-                type: DataTypes.STRING,
+                type: DataTypes.DATEONLY,
                 allowNull: false,
             },
             end_date: {
-                type: DataTypes.STRING,
+                type: DataTypes.DATEONLY,
                 allowNull: false,
             },
             days: {
-                type: DataTypes.NUMBER,
+                type: DataTypes.INTEGER,
                 allowNull: false,
             },
             price_per_day: {
-                type: DataTypes.NUMBER,
+                type: DataTypes.DECIMAL(10,2),
                 allowNull: false,
             },
             subtotal: {
-                type: DataTypes.NUMBER,
+                type: DataTypes.DECIMAL(12,2),
                 allowNull: false,
             }
         },

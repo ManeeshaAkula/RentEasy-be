@@ -36,7 +36,8 @@ export const UserModel = (sequelize: Sequelize) => {
     User.init(
         {
             id: {
-                type: DataTypes.STRING,
+                type: DataTypes.UUID,
+                defaultValue: DataTypes.UUIDV4,
                 primaryKey: true,
             },
             first_name: {
@@ -56,8 +57,12 @@ export const UserModel = (sequelize: Sequelize) => {
                 allowNull: true,
             },
             role_id: {
-                type: DataTypes.STRING,
+                type: DataTypes.UUID,
                 allowNull: false,
+                references: {
+                    model: 'reference_data',
+                    key: 'id'
+                }
             },
             mobile: {
                 type: DataTypes.STRING,
@@ -82,8 +87,8 @@ export const UserModel = (sequelize: Sequelize) => {
         },
         {
             sequelize,
-            tableName: 'Users',
-            modelName: 'Users',
+            tableName: 'users',
+            modelName: 'users',
             underscored: true,
             timestamps: true,
         }

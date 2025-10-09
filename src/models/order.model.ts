@@ -25,27 +25,36 @@ export const OrderModel = (sequelize: Sequelize) => {
     Order.init(
         {
             id: {
-                type: DataTypes.STRING,
+                type: DataTypes.UUID,
+                defaultValue: DataTypes.UUIDV4,
                 primaryKey: true,
             },
             buyer_id: {
                 type: DataTypes.STRING,
                 allowNull: false,
+                references: {
+                    model: 'users',
+                    key: 'id'
+                }
             },
             status_id: {
                 type: DataTypes.STRING,
                 allowNull: false,
+                references: {
+                    model: 'reference_data',
+                    key: 'id'
+                }
             },
             subtotal: {
-                type: DataTypes.NUMBER,
+                type: DataTypes.DECIMAL(12,2),
                 allowNull: false,
             },
             tax: {
-                type: DataTypes.NUMBER,
+                type: DataTypes.DECIMAL(12,2),
                 allowNull: false,
             },
             total: {
-                type: DataTypes.NUMBER,
+                type: DataTypes.DECIMAL(12,2),
                 allowNull: false,
             },
             currency: {

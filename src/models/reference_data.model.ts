@@ -20,7 +20,8 @@ export const ReferenceDataModel = (sequelize: Sequelize) => {
     ReferenceData.init(
         {
             id: {
-                type: DataTypes.STRING,
+                type: DataTypes.UUID,
+                defaultValue: DataTypes.UUIDV4,
                 primaryKey: true,
             },
             category: {

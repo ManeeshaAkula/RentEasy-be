@@ -6,8 +6,10 @@ import { ReferenceData } from '../models/reference_data.model';
 export const createReferenceData = async (dto: ReferenceDataDTO): Promise<ApiResponse<ReferenceData>> => {
     try {
         const response = await ReferenceDataRepo.createReferenceData(dto);
+        console.log("......... response in service", response)
         return successResponse(response, 'ReferenceData Data added successfully', 200);
     } catch (error) {
+        console.log("........... error in service", error)
         return errorResponse('Failed to add ReferenceData Data', 500)
     }
 };
@@ -17,7 +19,7 @@ export const getReferenceDataById = async (id: string): Promise<ApiResponse<Refe
         const referenceDataResponse = await ReferenceDataRepo.getReferenceDataById(id);
         return successResponse(referenceDataResponse, 'ReferenceData fetched successfully', 200);
     } catch (error) {
-        return errorResponse('Failed to fetch All ReferenceData', 500)
+        return errorResponse('Failed to fetch ReferenceData', 500)
 
     }
 };

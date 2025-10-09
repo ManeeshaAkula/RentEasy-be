@@ -24,32 +24,45 @@ export const RentalRequestModel = (sequelize: Sequelize) => {
     RentalRequest.init(
         {
             id: {
-                type: DataTypes.STRING,
+                type: DataTypes.UUID,
+                defaultValue: DataTypes.UUIDV4,
                 primaryKey: true,
             },
             product_id: {
                 type: DataTypes.STRING,
                 allowNull: false,
+                references: {
+                    model: 'products',
+                    key: 'id'
+                }
             },
             buyer_id: {
                 type: DataTypes.STRING,
                 allowNull: false,
+                references: {
+                    model: 'users',
+                    key: 'id'
+                }
             },
             start_date: {
-                type: DataTypes.STRING,
+                type: DataTypes.DATEONLY,
                 allowNull: false,
             },
             end_date: {
-                type: DataTypes.STRING,
+                type: DataTypes.DATEONLY,
                 allowNull: false,
             },
             days: {
-                type: DataTypes.NUMBER,
+                type: DataTypes.INTEGER,
                 allowNull: false,
             },
             status_id: {
                 type: DataTypes.STRING,
                 allowNull: false,
+                references: {
+                    model: 'reference_data',
+                    key: 'id'
+                }
             }
         },
         {

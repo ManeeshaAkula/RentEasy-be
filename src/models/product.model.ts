@@ -39,12 +39,17 @@ export const ProductModel = (sequelize: Sequelize) => {
     Product.init(
         {
             id: {
-                type: DataTypes.STRING,
+                type: DataTypes.UUID,
+                defaultValue: DataTypes.UUIDV4,
                 primaryKey: true,
             },
             seller_id: {
                 type: DataTypes.STRING,
                 allowNull: false,
+                references: {
+                    model: 'users',
+                    key: 'id'
+                }
             },
             title: {
                 type: DataTypes.STRING,
@@ -61,17 +66,21 @@ export const ProductModel = (sequelize: Sequelize) => {
             category_id: {
                 type: DataTypes.STRING,
                 allowNull: false,
+                 references: {
+                    model: 'reference_data',
+                    key: 'id'
+                }
             },
             price_per_day: {
-                type: DataTypes.NUMBER,
+                type: DataTypes.DECIMAL(10,2),
                 allowNull: false,
             },
             quantity: {
-                type: DataTypes.NUMBER,
+                type: DataTypes.DECIMAL(10,2),
                 allowNull: false,
             },
             deposit: {
-                type: DataTypes.NUMBER,
+                type: DataTypes.DECIMAL(10,2),
                 allowNull: false,
             },
             location_city: {

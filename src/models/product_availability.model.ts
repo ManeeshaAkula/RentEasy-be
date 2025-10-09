@@ -19,12 +19,17 @@ export const ProductAvailabilityItemModel = (sequelize: Sequelize) => {
     ProductAvailability.init(
         {
             id: {
-                type: DataTypes.STRING,
+                type: DataTypes.UUID,
+                defaultValue: DataTypes.UUIDV4,
                 primaryKey: true,
             },
             product_id: {
                 type: DataTypes.STRING,
                 allowNull: false,
+                references: {
+                    model: 'products',
+                    key: 'id'
+                }
             },
             date: {
                 type: DataTypes.STRING,

@@ -18,16 +18,25 @@ export const ReservationModel = (sequelize: Sequelize) => {
     Reservation.init(
         {
             id: {
-                type: DataTypes.STRING,
+                type: DataTypes.UUID,
+                defaultValue: DataTypes.UUIDV4,
                 primaryKey: true,
             },
             product_id: {
                 type: DataTypes.STRING,
                 allowNull: false,
+                references: {
+                    model: 'products',
+                    key: 'id'
+                }
             },
             order_item_id: {
                 type: DataTypes.STRING,
                 allowNull: false,
+                references: {
+                    model: 'order_items',
+                    key: 'id'
+                }
             },
             date: {
                 type: DataTypes.STRING,

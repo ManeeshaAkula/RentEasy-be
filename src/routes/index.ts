@@ -17,12 +17,12 @@ const router = Router();
 router.use('/cart_item', CartItemRoutes);
 router.use('/cart', CartRoutes);
 router.use('/invoice', InvoiceRoutes);
-router.use('/order_item', OrderItemRoutes);
+router.use('/order-item', OrderItemRoutes);
 router.use('/order', OrderRoutes);
-router.use('/product_availability', ProductAvailabilityRoutes);
+router.use('/product-availability', ProductAvailabilityRoutes);
 router.use('/product', ProductRoutes);
 router.use('/reference-data', ReferenceDataRoutes);
-router.use('/rental_request', RentalRequestRoutes);
+router.use('/rental-request', RentalRequestRoutes);
 router.use('/reservation', ReservationRoutes);
 router.use('/user', userRoutes);
 

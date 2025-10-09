@@ -1,4 +1,4 @@
-import { ReferenceData } from '../models/reference_data.model';
+import { ReferenceData } from '../models';
 import { ReferenceDataDTO } from "../dto/reference_data.dto"
 
 export const createReferenceData = async (data: ReferenceDataDTO) => {
