@@ -9,5 +9,6 @@ export interface UserDTO {
     email_id: string,
     city: string,
     state: string,
-    zip: string
+    zip: string,
+    password: string
 }

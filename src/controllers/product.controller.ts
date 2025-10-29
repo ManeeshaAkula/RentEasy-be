@@ -3,6 +3,7 @@ import * as ProductService from '../services/product.service';
 
 export const createProduct = async (req: Request, res: Response) => {
     try {
+        console.log("......... request body in product", req.body)
         const result = await ProductService.createProduct(req.body);
         if (result.error) {
             return res.status(result.status).json({ message: result.message });
@@ -14,6 +15,7 @@ export const createProduct = async (req: Request, res: Response) => {
 
         });
     } catch (error) {
+        console.log("......... error in catch controller", error)
         console.error('Error while creating Product data:', error);
         res.status(500).json({ message: 'Internal Server Error' });
     }

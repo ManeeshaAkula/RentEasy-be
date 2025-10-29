@@ -11,7 +11,8 @@ interface UserAttributes {
     email_id: string,
     city: string,
     state: string,
-    zip: string
+    zip: string,
+    password: string
 }
 
 interface UserCreationAttributes extends Optional<UserAttributes, 'middle_name' | 'last_name' | 'gender'> { }
@@ -28,6 +29,7 @@ export class User extends Model<UserAttributes, UserCreationAttributes> implemen
     public city!: string;
     public state!: string;
     public zip!: string;
+    public password!: string;
     public readonly created_at!: Date;
     public readonly updated_at!: Date;
 }
@@ -83,6 +85,10 @@ export const UserModel = (sequelize: Sequelize) => {
             zip: {
                 type: DataTypes.STRING,
                 allowNull: false,
+            },
+            password: {
+                type: DataTypes.STRING,
+                allowNull: false
             }
         },
         {

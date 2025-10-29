@@ -10,5 +10,9 @@ export const getReferenceDataById = async (id: string) => {
 };
 
 export const getReferenceDataByCategory = async (category: string) => {
-    return await ReferenceData.findOne({ where: { category } });
+    return await ReferenceData.findAll({ where: { category } });
+};
+
+export const getReferenceDataByCode = async (code: string) => {
+    return await ReferenceData.findOne({ where: { code } });
 };

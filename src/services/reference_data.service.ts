@@ -24,11 +24,21 @@ export const getReferenceDataById = async (id: string): Promise<ApiResponse<Refe
     }
 };
 
-export const getReferenceDataByCategory = async (category: string): Promise<ApiResponse<ReferenceData | null>> => {
+export const getReferenceDataByCategory = async (category: string): Promise<ApiResponse<ReferenceData[] | null>> => {
     try {
         const ReferenceDataData = await ReferenceDataRepo.getReferenceDataByCategory(category);
         return successResponse(ReferenceDataData, 'ReferenceData fetched successfully', 200);
     } catch (error) {
+        return errorResponse('Failed to fetch ReferenceData data', 500)
+    }
+};
+
+export const getReferenceDataByCode = async (code: string): Promise<ApiResponse<ReferenceData | null>> => {
+    try {
+        const ReferenceDataData = await ReferenceDataRepo.getReferenceDataByCode(code);
+        return successResponse(ReferenceDataData, 'ReferenceData fetched successfully', 200);
+    } catch (error) {
+        console.log(".......... error in service", error)
         return errorResponse('Failed to fetch ReferenceData data', 500)
     }
 };

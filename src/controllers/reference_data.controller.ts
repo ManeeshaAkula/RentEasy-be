@@ -54,3 +54,22 @@ export const getReferenceDataByCategory = async (req: Request, res: Response) =>
         res.status(500).json({ error: error });
     }
 };
+
+export const getReferenceDataByCode = async (req: Request, res: Response) => {
+    try {
+        console.log(".......... params in controller", req.params.code)
+        const result = await ReferenceDataService.getReferenceDataByCode(req.params.code);
+        if (result.error) {
+            return res.status(result.status).json({ message: result.message });
+        }
+
+        return res.status(result.status).json({
+            message: result.message,
+            data: result.data
+        });
+    } catch (error) {
+        console.log("....... error in controller", error)
+        console.error('Error while fetching ReferenceData:', error);
+        res.status(500).json({ error: error });
+    }
+}; 
