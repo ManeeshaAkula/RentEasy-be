@@ -1,4 +1,6 @@
 import { Router } from 'express';
+import express from "express";
+import path from "path";
 import CartItemRoutes from './cart_item.routes';
 import CartRoutes from './cart.routes';
 import InvoiceRoutes from './invoice.routes';
@@ -10,6 +12,7 @@ import ReferenceDataRoutes from './reference_data.routes';
 import RentalRequestRoutes from './rental_request.routes';
 import ReservationRoutes from './reservation.routes';
 import userRoutes from './user.routes';
+import checkoutRoutes from './checkout.routes';
 
 
 const router = Router();
@@ -25,5 +28,7 @@ router.use('/reference-data', ReferenceDataRoutes);
 router.use('/rental-request', RentalRequestRoutes);
 router.use('/reservation', ReservationRoutes);
 router.use('/user', userRoutes);
+router.use("/checkout", checkoutRoutes);
+router.use("/receipts", express.static(path.join(process.cwd(), "public", "receipts")));
 
 export default router;

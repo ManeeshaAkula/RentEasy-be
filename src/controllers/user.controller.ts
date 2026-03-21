@@ -27,6 +27,7 @@ export const loginUser = async (req: Request, res: Response) => {
     try {
         console.log(".......... request body", req.body)
         const result = await UserService.login(req.body);
+        console.log("......... result in controller login", result)
         if (result.error) {
             return res.status(result.status).json({ message: result.message });
         }

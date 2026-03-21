@@ -8,94 +8,211 @@ import { User } from '../models/user.model';
 import { ReferenceData } from "../models/reference_data.model";
 import { normalizeEmail, normalizeMobile } from '../utils/normalizers';
 
+const SALT_ROUNDS = 10;
+
+const toStr = (v: any) => (v === undefined || v === null ? "" : String(v));
+
 export const createUser = async (dto: UserDTO): Promise<ApiResponse<User>> => {
-    try {
-        const em = normalizeEmail(dto.email_id);
-        const mb = normalizeMobile(dto.mobile);
+  try {
+    console.log("......... dto in register", dto)
+    const email_id = normalizeEmail(toStr(dto.email_id));
+    const mobile = normalizeMobile(toStr(dto.mobile));
+    const role_id = toStr(dto.role_id).trim();
+    const password = toStr(dto.password);
 
-        if (!em || !mb) {
-            return errorResponse('Email or mobile is invalid', 400);
-        }
+    if (!email_id) return errorResponse("Email is invalid", 400);
+    if (!mobile) return errorResponse("Mobile is invalid", 400);
+    if (!role_id) return errorResponse("role_id is required", 400);
+    if (!password) return errorResponse("Password is required", 400);
 
-        const existing = await UserRepo.findByEmailOrMobile(em, mb);
-        console.log(".......... existing user", existing)
-        if (existing) {
-            return errorResponse('Email or mobile already exists', 409);
-        }
+    const role = await ReferenceData.findOne({
+      where: { id: role_id, category: "USER_ROLE" }
+    });
+    console.log("........ role in create method", role)
+    if (!role) return errorResponse("Invalid role_id", 400);
 
-        if (dto.role_id) {
-            const role = await ReferenceData.findOne({ where: { id: dto.role_id, category: 'USER_ROLE' } });
-            console.log(".......... role in service", role)
-            if (!role) return errorResponse('Invalid role_id', 400);
-        }
-        const hashedPassword = await bcrypt.hash(dto.password, 10);
-        console.log("......... hashed password", hashedPassword)
-        const payload = { ...dto, email_id: em, mobile: mb, password: hashedPassword };
-        console.log("...... payload in service", payload)
-        const response = await UserRepo.createUser(payload);
-        return successResponse(response, 'User created successfully', 201);
-    } catch (error) {
-        console.log("......... error in service catch", error)
-        return errorResponse('Failed to add User', 500);
-    }
+    const existing = await UserRepo.findByEmailOrMobile(email_id, mobile);
+    if (existing) return errorResponse("Email or mobile already exists", 409);
+
+    const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
+
+    const payload: UserDTO = {
+      ...dto,
+      email_id,
+      mobile,
+      role_id,
+      password: hashedPassword
+    };
+
+    const created = await UserRepo.createUser(payload);
+    console.log(".. created after api", created)
+    return successResponse(created, "User created successfully", 201);
+  } catch (error) {
+    return errorResponse("Failed to add User", 500);
+  }
 };
 
 export const login = async (body: any): Promise<ApiResponse<LoginResponseDTO>> => {
-    try {
-        const { username, password, role } = body;
-        console.log(".......... body in service", body)
-        if (!username || !password) return errorResponse('Username and password are required', 400);
+  try {
+    const username = toStr(body?.username).trim();
+    const password = toStr(body?.password);
+    const role = toStr(body?.role).trim();
 
-        const email_id = username.includes('@') ? normalizeEmail(username) : null;
-        const mobile = !email_id ? normalizeMobile(username) : null;
-
-        const user = await UserRepo.findByEmailOrMobileAndRole(email_id, mobile, role);
-        console.log("..........user in service", user)
-        if (!user) return errorResponse('Invalid credentials', 401);
-
-        const roleRecord = await ReferenceData.findOne({
-            where: { id: user.getDataValue('role_id') },
-            attributes: ['label']
-        });
-
-        const ok = await bcrypt.compare(password, user.getDataValue('password'));
-        console.log("....... ok after bcrypt", ok)
-        if (!ok) return errorResponse('Invalid credentials', 401);
-
-        const token = jwt.sign(
-            {
-                id: user.getDataValue('id'), role_id:
-                    user.getDataValue('role_id'),
-                role_name: roleRecord ? roleRecord.getDataValue('label') : null
-            },
-            process.env.JWT_SECRET as string,
-            { expiresIn: '1d' })
-        const plain = user.get({ plain: true });
-        delete (plain as any).password;
-
-        const response: LoginResponseDTO = {
-            token,
-            user: {
-                id: plain.id,
-                first_name: plain.first_name,
-                middle_name: plain.middle_name,
-                last_name: plain.last_name,
-                gender: plain.gender,
-                role_id: plain.role_id,
-                mobile: plain.mobile,
-                email_id: plain.email_id,
-                city: plain.city,
-                state: plain.state,
-                zip: plain.zip
-            }
-        };
-        console.log("........... response after token", response)
-        return successResponse(response, 'Login successful', 200);
-    } catch (error) {
-        console.log("........... error in login service", error)
-        return errorResponse('Failed to login', 500);
+    if (!username || !password || !role) {
+      return errorResponse("Username, password and role are required", 400);
     }
+
+    const email_id = username.includes("@") ? normalizeEmail(username) : null;
+    const mobile = !email_id ? normalizeMobile(username) : null;
+
+    if (!email_id && !mobile) {
+      return errorResponse("Username must be a valid email or mobile number", 400);
+    }
+
+    const user = await UserRepo.findByEmailOrMobileAndRole(email_id, mobile, role);
+    if (!user) return errorResponse("Invalid credentials", 401);
+
+    const storedHash = toStr(user.getDataValue("password"));
+    console.log("...... password", password)
+    console.log("............ storedhash", storedHash)
+    const ok = await bcrypt.compare(password, storedHash);
+    if (!ok) return errorResponse("Invalid credentials", 401);
+
+    const roleRecord = await ReferenceData.findOne({
+      where: { id: user.getDataValue("role_id") },
+      attributes: ["label"]
+    });
+
+    const secret = process.env.JWT_SECRET;
+    if (!secret) return errorResponse("JWT_SECRET is not configured", 500);
+
+    const token = jwt.sign(
+      {
+        id: user.getDataValue("id"),
+        role_id: user.getDataValue("role_id"),
+        role_name: roleRecord ? roleRecord.getDataValue("label") : null
+      },
+      secret,
+      { expiresIn: "1d" }
+    );
+
+    const plain = user.get({ plain: true }) as any;
+    delete plain.password;
+
+    const response: LoginResponseDTO = {
+      token,
+      user: {
+        id: plain.id,
+        first_name: plain.first_name,
+        middle_name: plain.middle_name,
+        last_name: plain.last_name,
+        gender: plain.gender,
+        role_id: plain.role_id,
+        mobile: plain.mobile,
+        email_id: plain.email_id,
+        city: plain.city,
+        state: plain.state,
+        zip: plain.zip
+      }
+    };
+
+    return successResponse(response, "Login successful", 200);
+  } catch (error) {
+    return errorResponse("Failed to login", 500);
+  }
 };
+
+// export const createUser = async (dto: UserDTO): Promise<ApiResponse<User>> => {
+//     try {
+//         const em = normalizeEmail(dto.email_id);
+//         const mb = normalizeMobile(dto.mobile);
+
+//         if (!em || !mb) {
+//             return errorResponse('Email or mobile is invalid', 400);
+//         }
+
+//         const existing = await UserRepo.findByEmailOrMobile(em, mb);
+//         console.log(".......... existing user", existing)
+//         if (existing) {
+//             return errorResponse('Email or mobile already exists', 409);
+//         }
+
+//         if (dto.role_id) {
+//             const role = await ReferenceData.findOne({ where: { id: dto.role_id, category: 'USER_ROLE' } });
+//             console.log(".......... role in service", role)
+//             if (!role) return errorResponse('Invalid role_id', 400);
+//         }
+//         const hashedPassword = await bcrypt.hash(dto.password, 10);
+//         console.log("......... hashed password", hashedPassword)
+//         const payload = { ...dto, email_id: em, mobile: mb, password: hashedPassword };
+//         console.log("...... payload in service", payload)
+//         const response = await UserRepo.createUser(payload);
+//         return successResponse(response, 'User created successfully', 201);
+//     } catch (error) {
+//         console.log("......... error in service catch", error)
+//         return errorResponse('Failed to add User', 500);
+//     }
+// };
+
+// export const login = async (body: any): Promise<ApiResponse<LoginResponseDTO>> => {
+//     try {
+//         const { username, password, role } = body;
+//         console.log(".......... body in service", body)
+//         console.log("incoming password raw:", JSON.stringify(password));
+// console.log("incoming password length:", String(password).length);
+
+//         if (!username || !password) return errorResponse('Username and password are required', 400);
+
+//         const email_id = username.includes('@') ? normalizeEmail(username) : null;
+//         const mobile = !email_id ? normalizeMobile(username) : null;
+
+//         const user = await UserRepo.findByEmailOrMobileAndRole(email_id, mobile, role);
+//         console.log("..........user in service", user)
+//         if (!user) return errorResponse('Invalid credentials', 401);
+
+//         const roleRecord = await ReferenceData.findOne({
+//             where: { id: user.getDataValue('role_id') },
+//             attributes: ['label']
+//         });
+// console.log("........ password", user.getDataValue('password'))
+//         const ok = await bcrypt.compare(password, user.getDataValue('password'));
+//         console.log("....... ok after bcrypt", ok)
+//         if (!ok) return errorResponse('Invalid credentials', 401);
+
+//         const token = jwt.sign(
+//             {
+//                 id: user.getDataValue('id'), role_id:
+//                     user.getDataValue('role_id'),
+//                 role_name: roleRecord ? roleRecord.getDataValue('label') : null
+//             },
+//             process.env.JWT_SECRET as string,
+//             { expiresIn: '1d' })
+//         const plain = user.get({ plain: true });
+//         delete (plain as any).password;
+
+//         const response: LoginResponseDTO = {
+//             token,
+//             user: {
+//                 id: plain.id,
+//                 first_name: plain.first_name,
+//                 middle_name: plain.middle_name,
+//                 last_name: plain.last_name,
+//                 gender: plain.gender,
+//                 role_id: plain.role_id,
+//                 mobile: plain.mobile,
+//                 email_id: plain.email_id,
+//                 city: plain.city,
+//                 state: plain.state,
+//                 zip: plain.zip
+//             }
+//         };
+//         console.log("........... response after token", response)
+//         return successResponse(response, 'Login successful', 200);
+//     } catch (error) {
+//         console.log("........... error in login service", error)
+//         return errorResponse('Failed to login', 500);
+//     }
+// };
 
 export const getAllUserData = async (): Promise<ApiResponse<User[]>> => {
     try {

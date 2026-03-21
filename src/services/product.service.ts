@@ -8,19 +8,30 @@ export const createProduct = async (dto: ProductDTO): Promise<ApiResponse<Produc
         const response = await ProductRepo.createProduct(dto);
         return successResponse(response, 'Product Data added successfully', 200);
     } catch (error) {
+        console.log("........ error in service", error)
         return errorResponse('Failed to add Product Data', 500)
     }
 };
 
-export const getAllProductData = async (): Promise<ApiResponse<Product[]>> => {
-    try {
-        const allProductData = await ProductRepo.getAllProducts();
-        return successResponse(allProductData, 'Products data fetched successfully', 200);
-    } catch (error) {
-        return errorResponse('Failed to fetch All Products data', 500)
+// export const getAllProductData = async (): Promise<ApiResponse<Product[]>> => {
+//     try {
+//         const allProductData = await ProductRepo.getAllProducts();
+//         return successResponse(allProductData, 'Products data fetched successfully', 200);
+//     } catch (error) {
+//         return errorResponse('Failed to fetch All Products data', 500)
 
+//     }
+// };
+
+export const getAllProductData = async (q = ""): Promise<ApiResponse<Product[]>> => {
+    try {
+        const allProductData = await ProductRepo.getAllProducts(q);
+        return successResponse(allProductData, "Products data fetched successfully", 200);
+    } catch (error) {
+        return errorResponse("Failed to fetch All Products data", 500);
     }
 };
+
 
 export const getProductById = async (id: string): Promise<ApiResponse<Product | null>> => {
     try {
@@ -39,5 +50,15 @@ export const updateProductById = async (id: string, data: any): Promise<ApiRespo
         return successResponse({ affectedCount }, 'Product updated successfully', 200);
     } catch (error) {
         return errorResponse('Failed to update Product', 500)
+    }
+};
+
+export const getProductsBySellerId = async (seller_id: string): Promise<ApiResponse<Product[]>> => {
+    try {
+        const products = await ProductRepo.getProductsBySellerId(seller_id);
+        return successResponse(products, 'Products fetched successfully', 200);
+    } catch (error) {
+        console.error("Error fetching products by userId:", error);
+        return errorResponse('Failed to fetch products', 500);
     }
 };
